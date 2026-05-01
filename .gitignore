@@ -1,0 +1,5 @@
+# No subir nada sensible
+.DS_Store
+.env
+*.log
+node_modules/
