@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#3C3489">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Mi App Personal</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     AUTH SCREEN
+════════════════════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">💪</div>
+    <div class="auth-title">Mi App Personal</div>
+    <div class="auth-sub">Tu entrenamiento, nutrición y vida en un solo lugar</div>
+
+    <!-- SIGN IN -->
+    <div id="signin-form">
+      <div class="auth-error" id="signin-error"></div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="signin-email" placeholder="tu@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="signin-pw" placeholder="••••••••" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter') handleSignIn(event)">
+      </div>
+      <button class="btn primary btn-full" id="signin-btn" onclick="handleSignIn(event)">Entrar</button>
+      <div class="auth-toggle">
+        ¿No tenés cuenta? <a onclick="toggleAuthForm()">Crear cuenta</a>
+      </div>
+    </div>
+
+    <!-- SIGN UP -->
+    <div id="signup-form" style="display:none">
+      <div class="auth-error" id="signup-error"></div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="signup-email" placeholder="tu@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="signup-pw" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label>Repetir contraseña</label>
+        <input type="password" id="signup-pw2" placeholder="Repetí la contraseña" autocomplete="new-password">
+      </div>
+      <button class="btn primary btn-full" id="signup-btn" onclick="handleSignUp(event)">Crear cuenta</button>
+      <div class="auth-toggle">
+        ¿Ya tenés cuenta? <a onclick="toggleAuthForm()">Entrar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     APP SCREEN
+════════════════════════════════════════════════════════ -->
+<div id="app-screen">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div class="header-left">
+        <div class="app-logo">💪</div>
+        <div>
+          <div class="app-name">Mi App Personal</div>
+          <div class="user-email" id="user-email-display"></div>
+        </div>
+      </div>
+      <button class="btn sm" onclick="handleSignOut()">Salir</button>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-btn active" onclick="showSection('workout',this)">🏋️ Entrenamiento</button>
+      <button class="nav-btn" onclick="showSection('nutrition',this)">🥗 Nutrición</button>
+      <button class="nav-btn" onclick="showSection('shopping',this)">🛒 Compras</button>
+      <button class="nav-btn" onclick="showSection('notes',this)">📓 Agenda</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ████ WORKOUT ████ -->
+    <div id="section-workout" class="section active">
+      <div class="sub-tabs">
+        <button class="sub-tab active" onclick="wTab('exercises',this)">Ejercicios</button>
+        <button class="sub-tab" onclick="wTab('routines',this)">Rutinas</button>
+        <button class="sub-tab" onclick="wTab('session',this)">Sesión</button>
+        <button class="sub-tab" onclick="wTab('history',this)">Historial</button>
+      </div>
+
+      <!-- EXERCISES -->
+      <div id="wt-exercises">
+        <div class="section-header">
+          <div class="section-title">Ejercicios</div>
+          <button class="btn primary" onclick="openModal('m-add-exercise')">+ Agregar</button>
+        </div>
+        <div class="card" id="exercise-list">
+          <div class="loading"><span class="spinner"></span>Cargando...</div>
+        </div>
+      </div>
+
+      <!-- ROUTINES -->
+      <div id="wt-routines" style="display:none">
+        <div class="section-header">
+          <div class="section-title">Rutinas</div>
+          <button class="btn primary" onclick="openRoutineModal()">+ Nueva</button>
+        </div>
+        <div id="routine-list"></div>
+        <div id="routine-empty" class="card" style="display:none">
+          <div class="empty"><span class="empty-icon">📋</span>No hay rutinas.<br>Creá tu primera rutina.</div>
+        </div>
+      </div>
+
+      <!-- SESSION -->
+      <div id="wt-session" style="display:none">
+        <div id="no-session-msg" class="card">
+          <div class="empty">
+            <span class="empty-icon">▶️</span>
+            No hay sesión activa.<br>Iniciá una rutina desde la pestaña Rutinas.
+            <br><br>
+            <button class="btn primary" onclick="wTab('routines', document.querySelectorAll('#section-workout .sub-tab')[1])">Ver rutinas →</button>
+          </div>
+        </div>
+        <div id="active-session-ui" style="display:none">
+          <div class="card" style="text-align:center;margin-bottom:12px">
+            <div style="font-size:14px;color:var(--text2);margin-bottom:6px" id="sess-rout-name"></div>
+            <div class="timer-big" id="sess-timer">00:00</div>
+            <div style="margin-top:14px">
+              <button class="btn danger" onclick="endSession()">⏹ Finalizar sesión</button>
+            </div>
+          </div>
+          <div id="rest-card" class="card" style="display:none;text-align:center">
+            <div style="font-size:13px;font-weight:600;color:var(--teal);margin-bottom:6px">⏱ Descanso</div>
+            <div class="timer-rest" id="rest-timer">0:00</div>
+            <div class="rest-wrap"><div class="rest-bar" id="rest-bar" style="width:100%"></div></div>
+            <button class="btn sm" onclick="skipRest()">Saltar descanso</button>
+          </div>
+          <div id="session-exercises"></div>
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div id="wt-history" style="display:none">
+        <div class="section-title" style="margin-bottom:16px">Historial</div>
+        <div class="card" id="history-list">
+          <div class="loading"><span class="spinner"></span>Cargando...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ████ NUTRITION ████ -->
+    <div id="section-nutrition" class="section">
+      <div class="sub-tabs">
+        <button class="sub-tab active" onclick="nTab('foods',this)">Alimentos</button>
+        <button class="sub-tab" onclick="nTab('recipes',this)">Recetas</button>
+      </div>
+      <div id="nt-foods">
+        <div class="section-header">
+          <div class="section-title">Alimentos</div>
+          <button class="btn primary" onclick="openModal('m-add-food')">+ Agregar</button>
+        </div>
+        <div class="card" id="food-list">
+          <div class="loading"><span class="spinner"></span>Cargando...</div>
+        </div>
+      </div>
+      <div id="nt-recipes" style="display:none">
+        <div class="section-header">
+          <div class="section-title">Recetas</div>
+          <button class="btn primary" onclick="openRecipeModal()">+ Nueva</button>
+        </div>
+        <div id="recipe-list"></div>
+        <div id="recipe-empty" class="card" style="display:none">
+          <div class="empty"><span class="empty-icon">🍳</span>No hay recetas.<br>Combiná alimentos para crear recetas.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ████ SHOPPING ████ -->
+    <div id="section-shopping" class="section">
+      <div class="section-header">
+        <div class="section-title">Lista de compras</div>
+        <button class="btn primary" onclick="openModal('m-add-shop')">+ Agregar</button>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-val" id="sh-total">0</div><div class="stat-lbl">Total</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--green)" id="sh-done">0</div><div class="stat-lbl">Comprados</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:#D85A30" id="sh-pending">0</div><div class="stat-lbl">Faltan</div></div>
+      </div>
+      <div class="card" id="shopping-list">
+        <div class="loading"><span class="spinner"></span>Cargando...</div>
+      </div>
+      <div class="flex-end" style="margin-top:8px">
+        <button class="btn sm" onclick="clearDone()">Limpiar comprados</button>
+      </div>
+    </div>
+
+    <!-- ████ NOTES ████ -->
+    <div id="section-notes" class="section">
+      <div class="sub-tabs">
+        <button class="sub-tab active" onclick="annTab('notepad',this)">Notas</button>
+        <button class="sub-tab" onclick="annTab('calendar',this)">Calendario</button>
+        <button class="sub-tab" onclick="annTab('schedule',this)">Rutina semanal</button>
+      </div>
+
+      <div id="ant-notepad">
+        <div class="card" style="margin-bottom:14px">
+          <div class="form-group">
+            <label>Nueva nota</label>
+            <textarea id="new-note-text" placeholder="Escribí tu nota, recordatorio o tarea..."></textarea>
+          </div>
+          <div class="flex" style="gap:10px">
+            <select id="note-type" style="flex:1">
+              <option value="nota">📝 Nota</option>
+              <option value="recordatorio">🔔 Recordatorio</option>
+              <option value="tarea">✅ Tarea</option>
+            </select>
+            <button class="btn primary" onclick="saveNote()">Guardar</button>
+          </div>
+        </div>
+        <div class="section-title" style="margin-bottom:12px">Notas guardadas</div>
+        <div class="card" id="notes-list">
+          <div class="loading"><span class="spinner"></span>Cargando...</div>
+        </div>
+      </div>
+
+      <div id="ant-calendar" style="display:none">
+        <div class="card">
+          <div class="cal-nav">
+            <button class="btn sm" onclick="calPrev()">‹ Anterior</button>
+            <div class="cal-month" id="cal-title"></div>
+            <button class="btn sm" onclick="calNext()">Siguiente ›</button>
+          </div>
+          <div class="cal-daynames">
+            <div class="cal-dname">Dom</div><div class="cal-dname">Lun</div><div class="cal-dname">Mar</div>
+            <div class="cal-dname">Mié</div><div class="cal-dname">Jue</div><div class="cal-dname">Vie</div><div class="cal-dname">Sáb</div>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+          <div style="margin-top:12px;font-size:11px;color:var(--text3);display:flex;gap:14px">
+            <span>🟠 Tiene notas</span><span>🟢 Entrenamiento</span>
+          </div>
+        </div>
+        <div class="card" id="cal-detail" style="display:none">
+          <div class="card-title" id="cal-detail-title"></div>
+          <div id="cal-detail-body" style="margin-top:10px"></div>
+        </div>
+      </div>
+
+      <div id="ant-schedule" style="display:none">
+        <div class="card">
+          <div class="flex-between" style="margin-bottom:12px">
+            <div class="card-title">Rutina semanal</div>
+            <button class="btn sm danger" onclick="clearSched()">Limpiar</button>
+          </div>
+          <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Tocá cualquier celda para editar la actividad de ese horario.</p>
+          <div class="schedule-wrap">
+            <table class="schedule-table" id="schedule-table"></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /app-screen -->
+
+<!-- ════════════════ MODALS ════════════════ -->
+
+<!-- ADD EXERCISE -->
+<div class="modal-overlay" id="m-add-exercise">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Agregar ejercicio</div>
+    <div class="form-group"><label>Nombre *</label><input id="ex-name" placeholder="Ej: Press de banca"></div>
+    <div class="form-group">
+      <label>Grupo muscular</label>
+      <select id="ex-muscle">
+        <option>Pecho</option><option>Espalda</option><option>Hombros</option>
+        <option>Bíceps</option><option>Tríceps</option><option>Piernas</option>
+        <option>Glúteos</option><option>Abdomen</option><option>Cardio</option><option>Otro</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Notas / descripción</label><textarea id="ex-desc" placeholder="Descripción, variantes, tips..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('m-add-exercise')">Cancelar</button>
+      <button class="btn primary" id="ex-save-btn" onclick="saveExercise()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE ROUTINE -->
+<div class="modal-overlay" id="m-create-routine">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nueva rutina</div>
+    <div class="form-group"><label>Nombre *</label><input id="rout-name" placeholder="Ej: Push Day, Piernas, Full Body..."></div>
+    <div class="grid-2">
+      <div class="form-group"><label>Día / etiqueta</label><input id="rout-day" placeholder="Ej: Lunes, Día A"></div>
+      <div class="form-group"><label>Descanso (segundos)</label><input id="rout-rest" type="number" value="60" min="5"></div>
+    </div>
+    <div class="divider"></div>
+    <div style="font-weight:600;font-size:14px;margin-bottom:10px">Ejercicios</div>
+    <div id="rout-exer-list"></div>
+    <button class="btn btn-full" style="margin-top:8px" onclick="addRoutineExercise()">+ Agregar ejercicio</button>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('m-create-routine')">Cancelar</button>
+      <button class="btn primary" id="rout-save-btn" onclick="saveRoutine()">Guardar rutina</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD FOOD -->
+<div class="modal-overlay" id="m-add-food">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Agregar alimento</div>
+    <div class="form-group"><label>Nombre *</label><input id="food-name" placeholder="Ej: Pechuga de pollo"></div>
+    <div class="form-group"><label>Porción de referencia</label><input id="food-portion" placeholder="Ej: 100g, 1 unidad, 1 taza"></div>
+    <div class="grid-2">
+      <div class="form-group"><label>Proteínas (g)</label><input id="food-prot" type="number" min="0" step="0.1" placeholder="0"></div>
+      <div class="form-group"><label>Carbohidratos (g)</label><input id="food-carb" type="number" min="0" step="0.1" placeholder="0"></div>
+      <div class="form-group"><label>Grasas (g)</label><input id="food-fat" type="number" min="0" step="0.1" placeholder="0"></div>
+      <div class="form-group"><label>Calorías (kcal)</label><input id="food-kcal" type="number" min="0" placeholder="0"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('m-add-food')">Cancelar</button>
+      <button class="btn primary" id="food-save-btn" onclick="saveFood()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE RECIPE -->
+<div class="modal-overlay" id="m-create-recipe">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nueva receta</div>
+    <div class="form-group"><label>Nombre *</label><input id="recipe-name" placeholder="Ej: Bowl de proteínas"></div>
+    <div class="form-group"><label>Porciones que rinde</label><input id="recipe-servings" type="number" value="1" min="1"></div>
+    <div class="divider"></div>
+    <div style="font-weight:600;font-size:14px;margin-bottom:10px">Ingredientes</div>
+    <div id="recipe-ing-list"></div>
+    <button class="btn btn-full" style="margin-top:8px" onclick="addIngredient()">+ Agregar ingrediente</button>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('m-create-recipe')">Cancelar</button>
+      <button class="btn primary" id="recipe-save-btn" onclick="saveRecipe()">Guardar receta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD SHOP ITEM -->
+<div class="modal-overlay" id="m-add-shop">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Agregar producto</div>
+    <div class="form-group"><label>Producto *</label><input id="shop-item-name" placeholder="Ej: Avena, Pollo, Huevos..."></div>
+    <div class="form-group"><label>Cantidad</label><input id="shop-item-qty" placeholder="Ej: 1kg, 6 unidades"></div>
+    <div class="form-group">
+      <label>Categoría</label>
+      <select id="shop-item-cat">
+        <option>🥩 Proteínas</option><option>🥬 Verduras</option><option>🍎 Frutas</option>
+        <option>🥛 Lácteos</option><option>🌾 Granos y cereales</option><option>🫙 Conservas</option>
+        <option>🍫 Snacks</option><option>🥤 Bebidas</option><option>🧴 Limpieza</option><option>📦 Otro</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('m-add-shop')">Cancelar</button>
+      <button class="btn primary" id="shop-save-btn" onclick="saveShopItem()">Agregar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCHEDULE CELL -->
+<div class="modal-overlay" id="m-schedule-cell">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="m-sch-title">Editar horario</div>
+    <div class="form-group"><label>Actividad</label><input id="sch-cell-val" placeholder="Ej: Gimnasio, Trabajo, Descanso..."></div>
+    <div class="modal-footer">
+      <button class="btn danger" onclick="deleteSchedCell()">Borrar</button>
+      <button class="btn" onclick="closeModal('m-schedule-cell')">Cancelar</button>
+      <button class="btn primary" onclick="saveSchedCell()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ════════════════ SCRIPTS ════════════════ -->
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<!-- Config (tus credenciales) -->
+<script src="js/config.js"></script>
+<!-- DB layer -->
+<script src="js/db.js"></script>
+<!-- App logic -->
+<script src="js/app.js"></script>
+<script>
+  // Toggle entre login y registro
+  function toggleAuthForm() {
+    const si = document.getElementById('signin-form');
+    const su = document.getElementById('signup-form');
+    si.style.display = si.style.display === 'none' ? '' : 'none';
+    su.style.display = su.style.display === 'none' ? '' : 'none';
+  }
+</script>
+</body>
+</html>
