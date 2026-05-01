@@ -106,7 +106,8 @@ async function handleSignUp(e) {
 }
 
 async function handleSignOut() {
-  await Auth.signOut();
+  try { await sb.auth.signOut(); } catch(e) {}
+  showAuthScreen();
 }
 
 function showAuthScreen() {
