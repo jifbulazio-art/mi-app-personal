@@ -1,7 +1,10 @@
 // db.js — Capa de datos con Supabase
 
 const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = createClient(
+  'https://aiaynpttrpxuymvabdij.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpYXlucHR0cnB4dXltdmFiZGlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NTA4NTMsImV4cCI6MjA5MzIyNjg1M30.LDMxQ3OIGZmmJ8Gx-rncsxSZpLL0rQwPhKUjDzOPOjE'
+);
 
 const Auth = {
   async signUp(email, password) {
